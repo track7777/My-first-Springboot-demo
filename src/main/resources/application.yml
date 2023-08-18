@@ -1,0 +1,30 @@
+spring:
+  # 数据库配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/db?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1277709017zyh_
+
+
+  #mybatis的相关配置
+  mybatis:
+    type-aliases-package: com.example.demo.entity
+    #开启驼峰命名
+    configuration:
+      map-underscore-to-camel-case: true
+
+  # Redis配置
+  redis:
+    database: 0 #Redis数据库索引
+    host: 127.0.0.1
+    port: 6379 #Redis连接端口
+    password:
+    jedis:
+      pool:
+        max-active: 8 #最大连接数
+        max-wait: -1 #最大阻塞等待时间
+        max-idle: 8 #最大空闲连接
+        min-idle: 0 #最小空闲连接
+    timeout: 1200 #连接超时时间
+
