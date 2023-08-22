@@ -9,12 +9,19 @@ import com.example.demo.exception.BusinessException;
 import com.example.demo.response.ResultResponse;
 import com.example.demo.service.UserService;
 import com.example.demo.service.impl.UserServiceImpl;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class UserController {
@@ -36,7 +43,6 @@ public class UserController {
         else{
             return ResultResponse.success(user);
         }
-
     }
     @GetMapping("/findAll")
     public List<User> findAll(){

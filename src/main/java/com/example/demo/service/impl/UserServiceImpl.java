@@ -3,12 +3,14 @@ package com.example.demo.service.impl;
 import com.example.demo.dao.UserDao;
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.data.redis.core.ValueOperations;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +19,12 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
-    @Autowired
-    public RedisTemplate redisTemplate;
+    @Resource
+    private RedisTemplate redisTemplate;
+
+    public RedisTemplate getRedisTemplate() {
+        return redisTemplate;
+    }
 
     public List<User> findAll(){
         return userDao.findAll();
@@ -26,6 +32,12 @@ public class UserServiceImpl implements UserService {
 
     public User login(int ID){
         User user = findUser(ID);
+        if(user != null){
+            ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
+            String session = RandomStringUtils.randomAlphabetic(15);
+            System.out.println("设置的session是：" + session);
+            operations.set(session, user.getID(),10, TimeUnit.MINUTES);
+        }
         return user;
     }
 

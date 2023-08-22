@@ -1,5 +1,6 @@
 package com.example.demo.filter;
 
+import com.example.demo.controller.UserController;
 import com.example.demo.entity.User;
 import com.example.demo.service.impl.UserServiceImpl;
 import jakarta.servlet.*;
@@ -17,8 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 @WebFilter("/*") //对所有请求进行拦截
 public class MyFilter implements Filter{
-    @Resource
-    private RedisTemplate<String, String> session;
+
+    @Autowired
+    private UserServiceImpl userService;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ;
@@ -28,22 +31,22 @@ public class MyFilter implements Filter{
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         String url = httpRequest.getRequestURL().toString();
-        ValueOperations<String, String> operations = session.opsForValue();
-        System.out.println("url: "+ url);
-        if(url.contains("login")){
-            System.out.println("登录页面，放行");
-            String ID = httpRequest.getParameter("ID");
-            operations.set("CURRENT_USER",ID,15, TimeUnit.MINUTES);
-            System.out.println("ID: " + ID);
-            chain.doFilter(request,response);
-            return;
-        }
-        if(operations.get("CURRENT_USER") != null){ //如果在登录状态
-            System.out.println("在登录状态");
-            chain.doFilter(request,response);;
+        if(url.contains("login") || url.contains("logout")){
+            chain.doFilter(request, response);
+            System.out.println("登录或登出页面，直接放行");
         }
         else{
-            System.out.println("未登录！");
+            String session = ((HttpServletRequest) request).getHeader("session");
+            System.out.println("请求中的session is " + session);
+            if(session != null && userService.getRedisTemplate().hasKey(session)){
+                ValueOperations<String, Integer> operations = userService.getRedisTemplate().opsForValue();
+                Integer ID = operations.get(session);
+                System.out.println("已登录 ID：" + ID);
+                chain.doFilter(request,response);
+            }
+            else{
+                System.out.println("未登录！");
+            }
         }
     }
 
